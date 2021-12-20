@@ -75,5 +75,5 @@ def parse_pc_kakaotalk(file):
 if __name__ == '__main__':
     file = './KakaoTalk.txt'
     title, df = parse_pc_kakaotalk(file=file)
-    print(df.to_dict())
+    result = df.to_numpy()
     df.info()
