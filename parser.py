@@ -66,14 +66,17 @@ def parse_pc_kakaotalk(file):
             except Exception as e:
                 pass
 
-    df = pd.DataFrame(data=data, columns=['ts', 'user', 'text'])
-    df = df.astype(dtype={'ts': 'datetime64', 'user': 'category'})
-    # result = json(df.ts)
+    df = pd.DataFrame(data=data, columns=['datetime', 'user', 'message'])
+    df = df.astype(dtype={'datetime': 'datetime64', 'user': 'category'})
     return title, df
-
 
 if __name__ == '__main__':
     file = './KakaoTalk.txt'
     title, df = parse_pc_kakaotalk(file=file)
-    result = df.to_numpy()
-    df.info()
+    json = df.to_json(orient = 'records', force_ascii=False)
+    print(title)
+    print(json)
+    
+    with open('data.json', 'w', encoding='utf8') as jsonFile:
+        jsonFile.write(json)
+    # df.info()
