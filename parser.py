@@ -42,7 +42,7 @@ def parse_pc_kakaotalk(file):
         _ = f.readline()
 
         data = []
-        ts = None
+        datetime = None
         while True:
             line = f.readline()
             if not line:
@@ -51,32 +51,32 @@ def parse_pc_kakaotalk(file):
             m1 = date_p.search(line)
             if m1:
                 year, month, date = m1.groups()
-                ts = dt.datetime(int(year), int(month), int(date))
+                datetime = dt.datetime(int(year), int(month), int(date))
+                type = 'dayLine'
+                data.append([type, datetime])
                 continue
 
             m2 = msg_p.search(line)
             if m2:
                 user, meridiem, hour, minute, text = m2.groups()
-
-                ts = ts.replace(hour=hour12to24(meridiem, int(hour)), minute=int(minute))
-                data.append([ts, user, text])
+                datetime = datetime.replace(hour=hour12to24(meridiem, int(hour)), minute=int(minute))
+                type = 'message'
+                data.append([type, datetime, user, text])
                 continue
             try:
                 data[-1][-1] = data[-1][-1] + '\n' + line
             except Exception as e:
                 pass
 
-    df = pd.DataFrame(data=data, columns=['datetime', 'user', 'message'])
+    df = pd.DataFrame(data=data, columns=['type', 'datetime', 'user', 'message'])
     df = df.astype(dtype={'datetime': 'datetime64', 'user': 'category'})
     return title, df
 
 if __name__ == '__main__':
     file = './KakaoTalk.txt'
     title, df = parse_pc_kakaotalk(file=file)
-    json = df.to_json(orient = 'records', force_ascii=False)
-    print(title)
-    print(json)
-    
+    jsonData = df.to_json(orient = 'records', force_ascii=False)
+    jsonData = jsonData.replace('\\n', '<br>')
     with open('data.json', 'w', encoding='utf8') as jsonFile:
-        jsonFile.write(json)
+        jsonFile.write(jsonData)
     # df.info()
